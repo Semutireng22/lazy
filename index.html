@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -97,8 +97,6 @@
             color: #0077cc;
         }
     </style>
-    <!-- Tambahkan Ether.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
 </head>
 <body>
 
@@ -125,20 +123,14 @@
 </div>
 
 <script>
-    // Pastikan ethers.js sudah dimuat
-    if (typeof ethers === 'undefined') {
-        alert('ethers.js tidak berhasil dimuat. Periksa koneksi internet Anda.');
-    }
-
-    // Fungsi untuk menghasilkan alamat EVM secara otomatis menggunakan ethers.js
+    // Fungsi untuk menghasilkan alamat EVM secara acak yang kompatibel
     function generateAddress() {
-        try {
-            const wallet = ethers.Wallet.createRandom(); // Membuat wallet EVM acak
-            return wallet.address; // Mengembalikan alamat yang valid
-        } catch (error) {
-            console.error('Error generating address:', error);
-            return null;
+        const chars = '0123456789abcdef';
+        let address = '0x';
+        for (let i = 0; i < 40; i++) {
+            address += chars[Math.floor(Math.random() * chars.length)];
         }
+        return address;
     }
 
     // Fungsi untuk menghasilkan username acak yang lebih alami
@@ -200,11 +192,7 @@
 
         for (let i = 0; i < jumlahReferral; i++) {
             setTimeout(async () => {
-                const address = generateAddress();
-                if (!address) {
-                    resultDiv.innerHTML += `<p>Referral ke-${i + 1}: Gagal menghasilkan alamat EVM.</p>`;
-                    return;
-                }
+                const address = generateAddress(); // Menggunakan metode acak untuk alamat EVM
                 const twitter = generateRandomUsername();
                 const telegram = generateRandomUsername();
 
