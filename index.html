@@ -43,7 +43,7 @@
             color: #555;
         }
 
-        input[type="number"], input[type="text"], input[type="submit"] {
+        input[type="number"], input[type="text"], button {
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
@@ -52,15 +52,16 @@
             font-size: 16px;
         }
 
-        input[type="submit"] {
+        button {
             background-color: #4facfe;
             color: white;
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.3s;
+            border: none;
         }
 
-        input[type="submit"]:hover {
+        button:hover {
             background-color: #00aaff;
         }
 
@@ -114,7 +115,7 @@
         <input type="text" id="inviter" placeholder="Masukkan kode inviter">
     </div>
 
-    <input type="submit" value="Mulai" onclick="startReferral()">
+    <button onclick="startReferral()">Mulai</button>
 
     <div id="result" class="result"></div>
 
@@ -124,13 +125,23 @@
 </div>
 
 <script>
-    // Fungsi untuk menghasilkan alamat EVM secara otomatis menggunakan ethers.js
-    function generateAddress() {
-        const wallet = ethers.Wallet.createRandom(); // Membuat wallet EVM acak
-        return wallet.address; // Mengembalikan alamat yang valid
+    // Pastikan ethers.js sudah dimuat
+    if (typeof ethers === 'undefined') {
+        alert('ethers.js tidak berhasil dimuat. Periksa koneksi internet Anda.');
     }
 
-    // Fungsi untuk menghasilkan username acak
+    // Fungsi untuk menghasilkan alamat EVM secara otomatis menggunakan ethers.js
+    function generateAddress() {
+        try {
+            const wallet = ethers.Wallet.createRandom(); // Membuat wallet EVM acak
+            return wallet.address; // Mengembalikan alamat yang valid
+        } catch (error) {
+            console.error('Error generating address:', error);
+            return null;
+        }
+    }
+
+    // Fungsi untuk menghasilkan username acak yang lebih alami
     function generateRandomUsername() {
         const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         const length = Math.floor(Math.random() * 6) + 5; // Panjang 5 hingga 10
@@ -142,7 +153,7 @@
     }
 
     // Fungsi untuk mengirim referral
-    function sendReferral(address, twitter, telegram, inviter, callback) {
+    async function sendReferral(address, twitter, telegram, inviter) {
         const url = "https://lazycat.app/api/add";
         const payload = {
             address: address,
@@ -151,20 +162,29 @@
             inviter: inviter
         };
 
-        fetch(url, {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        })
-        .then(response => response.json())
-        .then(data => callback(data))
-        .catch(error => console.error('Error:', error));
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error sending referral:', error);
+            return { error: error.message };
+        }
     }
 
     // Fungsi untuk memulai proses referral
-    function startReferral() {
+    async function startReferral() {
         const jumlahReferral = parseInt(document.getElementById("referrals").value);
         const inviter = document.getElementById("inviter").value;
         const resultDiv = document.getElementById("result");
@@ -176,17 +196,31 @@
             return;
         }
 
-        let delay = 2000;  // 2 detik jeda antar referral
+        const delay = 2000;  // 2 detik jeda antar referral
 
         for (let i = 0; i < jumlahReferral; i++) {
-            setTimeout(() => {
-                const address = generateAddress(); // Menggunakan ethers.js untuk alamat EVM
+            setTimeout(async () => {
+                const address = generateAddress();
+                if (!address) {
+                    resultDiv.innerHTML += `<p>Referral ke-${i + 1}: Gagal menghasilkan alamat EVM.</p>`;
+                    return;
+                }
                 const twitter = generateRandomUsername();
                 const telegram = generateRandomUsername();
 
-                sendReferral(address, twitter, telegram, inviter, (data) => {
+                console.log(`Mengirim referral ke-${i + 1}:`);
+                console.log(`Alamat: ${address}`);
+                console.log(`Twitter: ${twitter}`);
+                console.log(`Telegram: ${telegram}`);
+
+                const data = await sendReferral(address, twitter, telegram, inviter);
+                console.log(`Hasil:`, data);
+
+                if (data.error) {
+                    resultDiv.innerHTML += `<p style="color: red;">Referral ke-${i + 1}: Alamat ${address}, Twitter: ${twitter}, Telegram: ${telegram}, Hasil: ${data.error}</p>`;
+                } else {
                     resultDiv.innerHTML += `<p>Referral ke-${i + 1}: Alamat ${address}, Twitter: ${twitter}, Telegram: ${telegram}, Hasil: ${JSON.stringify(data)}</p>`;
-                });
+                }
             }, i * delay);
         }
     }
