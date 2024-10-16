@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Referral Program</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input[type="number"], input[type="text"], input[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-top: 5px;
+            font-size: 16px;
+        }
+
+        input[type="submit"] {
+            background-color: #4facfe;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #00aaff;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: #f1f8ff;
+            border: 1px solid #bbe1fa;
+            color: #333;
+            overflow-y: auto;
+            max-height: 200px;
+        }
+
+        .result p {
+            margin: 5px 0;
+        }
+
+        .link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .link a {
+            color: #00aaff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 18px;
+            transition: color 0.3s;
+        }
+
+        .link a:hover {
+            color: #0077cc;
+        }
+    </style>
+    <!-- Tambahkan Ether.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <h2>Auto Referral Program</h2>
+
+    <div class="form-group">
+        <label for="referrals">Jumlah Referral:</label>
+        <input type="number" id="referrals" placeholder="Masukkan jumlah referral">
+    </div>
+
+    <div class="form-group">
+        <label for="inviter">Kode Inviter:</label>
+        <input type="text" id="inviter" placeholder="Masukkan kode inviter">
+    </div>
+
+    <input type="submit" value="Mulai" onclick="startReferral()">
+
+    <div id="result" class="result"></div>
+
+    <div class="link">Created By :
+        <a href="https://t.me/airdropasc" target="_blank">Airdrop ASC</a>
+    </div>
+</div>
+
+<script>
+    // Fungsi untuk menghasilkan alamat EVM secara otomatis menggunakan ethers.js
+    function generateAddress() {
+        const wallet = ethers.Wallet.createRandom(); // Membuat wallet EVM acak
+        return wallet.address; // Mengembalikan alamat yang valid
+    }
+
+    // Fungsi untuk menghasilkan username acak
+    function generateRandomUsername() {
+        const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const length = Math.floor(Math.random() * 6) + 5; // Panjang 5 hingga 10
+        let username = '@';
+        for (let i = 0; i < length; i++) {
+            username += chars[Math.floor(Math.random() * chars.length)];
+        }
+        return username;
+    }
+
+    // Fungsi untuk mengirim referral
+    function sendReferral(address, twitter, telegram, inviter, callback) {
+        const url = "https://lazycat.app/api/add";
+        const payload = {
+            address: address,
+            twitter: twitter,
+            telegram: telegram,
+            inviter: inviter
+        };
+
+        fetch(url, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => callback(data))
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Fungsi untuk memulai proses referral
+    function startReferral() {
+        const jumlahReferral = parseInt(document.getElementById("referrals").value);
+        const inviter = document.getElementById("inviter").value;
+        const resultDiv = document.getElementById("result");
+
+        resultDiv.innerHTML = "";  // Kosongkan hasil sebelumnya
+
+        if (!jumlahReferral || !inviter) {
+            alert("Tolong masukkan jumlah referral dan kode inviter.");
+            return;
+        }
+
+        let delay = 10000;  // 2 detik jeda antar referral
+
+        for (let i = 0; i < jumlahReferral; i++) {
+            setTimeout(() => {
+                const address = generateAddress(); // Menggunakan ethers.js untuk alamat EVM
+                const twitter = generateRandomUsername();
+                const telegram = generateRandomUsername();
+
+                sendReferral(address, twitter, telegram, inviter, (data) => {
+                    resultDiv.innerHTML += `<p>Referral ke-${i + 1}: Alamat ${address}, Twitter: ${twitter}, Telegram: ${telegram}, Hasil: ${JSON.stringify(data)}</p>`;
+                });
+            }, i * delay);
+        }
+    }
+</script>
+
+</body>
+</html>
