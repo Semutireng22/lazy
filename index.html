@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auto Referral Program</title>
+    <title>Program Auto Referral</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -13,21 +13,21 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: linear-gradient(to right, #4facfe, #00f2fe);
+            background-color: #1e1e1e;
         }
 
         .container {
-            background-color: #fff;
+            background-color: #333;
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
             max-width: 500px;
             width: 100%;
         }
 
         h2 {
             text-align: center;
-            color: #333;
+            color: #ffcc00;
             margin-bottom: 20px;
             font-size: 24px;
         }
@@ -40,38 +40,39 @@
             display: block;
             margin-bottom: 5px;
             font-weight: 600;
-            color: #555;
+            color: #ffcc00;
         }
 
-        input[type="number"], input[type="text"], button {
+        input[type="number"], input[type="text"], input[type="submit"] {
             width: 100%;
             padding: 12px;
-            border: 1px solid #ddd;
+            border: 1px solid #555;
             border-radius: 8px;
             margin-top: 5px;
             font-size: 16px;
+            background-color: #222;
+            color: #ffcc00;
         }
 
-        button {
-            background-color: #4facfe;
-            color: white;
+        input[type="submit"] {
+            background-color: #ffcc00;
+            color: #222;
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.3s;
-            border: none;
         }
 
-        button:hover {
-            background-color: #00aaff;
+        input[type="submit"]:hover {
+            background-color: #cc9900;
         }
 
         .result {
             margin-top: 20px;
             padding: 15px;
             border-radius: 10px;
-            background-color: #f1f8ff;
-            border: 1px solid #bbe1fa;
-            color: #333;
+            background-color: #444;
+            border: 1px solid #bb9800;
+            color: #ffcc00;
             overflow-y: auto;
             max-height: 200px;
         }
@@ -86,7 +87,7 @@
         }
 
         .link a {
-            color: #00aaff;
+            color: #ffcc00;
             text-decoration: none;
             font-weight: bold;
             font-size: 18px;
@@ -94,14 +95,14 @@
         }
 
         .link a:hover {
-            color: #0077cc;
+            color: #bb9800;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Auto Referral Program</h2>
+    <h2>Program Auto Referral</h2>
 
     <div class="form-group">
         <label for="referrals">Jumlah Referral:</label>
@@ -113,19 +114,20 @@
         <input type="text" id="inviter" placeholder="Masukkan kode inviter">
     </div>
 
-    <button onclick="startReferral()">Mulai</button>
+    <input type="submit" value="Mulai" onclick="startReferral()">
+    
+    <div id="result" class="result">
+    </div>
 
-    <div id="result" class="result"></div>
-
-    <div class="link">
-        <a href="https://t.me/airdropasc" target="_blank">ASC</a>
+    <div class="link">Created By 
+        <a href="https://t.me/airdropasc" target="_blank">Airdrop ASC</a>
     </div>
 </div>
 
 <script>
-    // Fungsi untuk menghasilkan alamat EVM secara acak yang kompatibel
+    // Fungsi untuk membuat alamat EVM secara manual (dummy wallet generator)
     function generateAddress() {
-        const chars = '0123456789abcdef';
+        let chars = '0123456789abcdef';
         let address = '0x';
         for (let i = 0; i < 40; i++) {
             address += chars[Math.floor(Math.random() * chars.length)];
@@ -133,19 +135,37 @@
         return address;
     }
 
-    // Fungsi untuk menghasilkan username acak yang lebih alami
+    // Array nama depan (firstPart) - 50 nama
+    const firstPart = [
+        "john", "alex", "mike", "sara", "emma", "lucy", "max", "nina", "jake", "zoe",
+        "lily", "sam", "oliver", "chloe", "leo", "mia", "noah", "ava", "ethan", "lola",
+        "logan", "ella", "liam", "sophia", "ben", "grace", "ryan", "chris", "isla", "dylan",
+        "ava", "josh", "luna", "kyle", "ruby", "liam", "ivy", "caleb", "poppy", "eli",
+        "sienna", "mason", "bella", "nathan", "hannah", "jordan", "zoey", "tyler", "layla"
+    ];
+
+    // Array nama belakang (secondPart) - 50 nama
+    const secondPart = [
+        "hunter", "baker", "carter", "flynn", "harris", "taylor", "king", "hill",
+        "clark", "wood", "cole", "wright", "stone", "white", "brown", "green",
+        "moore", "thomas", "lee", "jackson", "martin", "turner", "walker", "adams",
+        "nelson", "mitchell", "patterson", "jennings", "reid", "simmons", "porter",
+        "gray", "watson", "riley", "anderson", "morgan", "butler", "kingston", "spencer",
+        "shaw", "porter", "kim", "pearson", "sanders", "ramirez", "shaw", "bennett",
+        "owens", "butler", "tucker", "richardson", "griffin"
+    ];
+
+    // Fungsi untuk membuat username yang terlihat lebih manusiawi
     function generateRandomUsername() {
-        const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        const length = Math.floor(Math.random() * 6) + 5; // Panjang 5 hingga 10
-        let username = '@';
-        for (let i = 0; i < length; i++) {
-            username += chars[Math.floor(Math.random() * chars.length)];
-        }
-        return username;
+        const randomFirst = firstPart[Math.floor(Math.random() * firstPart.length)];
+        const randomSecond = secondPart[Math.floor(Math.random() * secondPart.length)];
+        const randomNumber = Math.floor(Math.random() * 1000); // Angka acak antara 0-999
+
+        return `@${randomFirst}${randomSecond}${randomNumber}`;
     }
 
     // Fungsi untuk mengirim referral
-    async function sendReferral(address, twitter, telegram, inviter) {
+    function sendReferral(address, twitter, telegram, inviter, callback) {
         const url = "https://lazycat.app/api/add";
         const payload = {
             address: address,
@@ -154,29 +174,20 @@
             inviter: inviter
         };
 
-        try {
-            const response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            return data;
-        } catch (error) {
-            console.error('Error sending referral:', error);
-            return { error: error.message };
-        }
+        fetch(url, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => callback(data))
+        .catch(error => console.error('Error:', error));
     }
 
     // Fungsi untuk memulai proses referral
-    async function startReferral() {
+    function startReferral() {
         const jumlahReferral = parseInt(document.getElementById("referrals").value);
         const inviter = document.getElementById("inviter").value;
         const resultDiv = document.getElementById("result");
@@ -188,27 +199,17 @@
             return;
         }
 
-        const delay = 2000;  // 2 detik jeda antar referral
+        let delay = 10000;  // 2 detik jeda antar referral
 
         for (let i = 0; i < jumlahReferral; i++) {
-            setTimeout(async () => {
-                const address = generateAddress(); // Menggunakan metode acak untuk alamat EVM
+            setTimeout(() => {
+                const address = generateAddress();
                 const twitter = generateRandomUsername();
                 const telegram = generateRandomUsername();
 
-                console.log(`Mengirim referral ke-${i + 1}:`);
-                console.log(`Alamat: ${address}`);
-                console.log(`Twitter: ${twitter}`);
-                console.log(`Telegram: ${telegram}`);
-
-                const data = await sendReferral(address, twitter, telegram, inviter);
-                console.log(`Hasil:`, data);
-
-                if (data.error) {
-                    resultDiv.innerHTML += `<p style="color: red;">Referral ke-${i + 1}: Alamat ${address}, Twitter: ${twitter}, Telegram: ${telegram}, Hasil: ${data.error}</p>`;
-                } else {
+                sendReferral(address, twitter, telegram, inviter, (data) => {
                     resultDiv.innerHTML += `<p>Referral ke-${i + 1}: Alamat ${address}, Twitter: ${twitter}, Telegram: ${telegram}, Hasil: ${JSON.stringify(data)}</p>`;
-                }
+                });
             }, i * delay);
         }
     }
